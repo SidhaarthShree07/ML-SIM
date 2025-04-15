@@ -71,6 +71,10 @@ def extract_lat_lon(text):
         return float(match.group(1)), float(match.group(2))
     return None, None
 
+@app.route('/')
+def home():
+    return "Welcome to SID ML PROJECT"
+    
 @app.route("/api/get_best_provider", methods=["POST"])
 def get_best_provider():
     data = request.json
