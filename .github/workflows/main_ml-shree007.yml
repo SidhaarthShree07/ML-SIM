@@ -34,9 +34,6 @@ jobs:
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
-      - name: Clean previous builds
-        run: rm -rf release.zip
-
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
 
@@ -67,15 +64,18 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_2FA46D9924AC456BAC3E35C2313A3CEB }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_7C17EBE1A6C74F639E1CCA4A6AA3F8F3 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_ADE413FD21384D9B92808CBD7E91402D }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_1814084BBA634EFD820E2893107637E4 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_ED53EE990A074136B66A809CDA665F5E }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F1D66EE7535D41E09BA21043A19CE84E }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'ml-shree007'
+          slot-name: 'Production'
+          
