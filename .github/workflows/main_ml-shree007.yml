@@ -77,4 +77,5 @@ jobs:
         id: deploy-to-webapp
         with:
           app-name: 'ml-shree007'
+          slot-name: 'Production'
           
