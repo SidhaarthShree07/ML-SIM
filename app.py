@@ -8,9 +8,13 @@ import re
 import os
 
 app = Flask(__name__)
+df = None
 
-# Load pre-cleaned dataset
-df = pd.read_csv("https://cleaneddata.blob.core.windows.net/csvdata/cleaned_data.csv")
+def get_dataset():
+    global df
+    if df is None:
+        df = pd.read_csv("https://cleaneddata.blob.core.windows.net/csvdata/cleaned_data.csv")
+    return df
 
 # Azure and Gemini keys from environment (set them on Vercel)
 AZURE_MAPS_KEY = os.environ.get("AZURE_MAPS_KEY")
