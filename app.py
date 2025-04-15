@@ -81,6 +81,7 @@ def home():
     
 @app.route("/api/get_best_provider", methods=["POST"])
 def get_best_provider():
+    df = get_dataset()
     data = request.json
     lat = float(data["lat"])
     lon = float(data["lon"])
@@ -103,6 +104,7 @@ def get_best_provider():
 
 @app.route("/api/chatbot", methods=["POST"])
 def chatbot():
+    df = get_dataset()
     data = request.json
     query = data["query"]
 
