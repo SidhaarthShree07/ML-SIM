@@ -97,7 +97,6 @@ def get_best_provider():
     best_score = round(best.iloc[0]['score'], 2)
 
     return jsonify({
-        "location": [lat, lon],
         "provider": best_provider,
         "score": best_score
     })
