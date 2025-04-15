@@ -7,8 +7,6 @@ import requests
 import re
 import os
 
-
-
 app = Flask(__name__)
 
 # Load pre-cleaned dataset
