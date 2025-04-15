@@ -1,5 +1,5 @@
-flask
-pandas
-numpy
-requests
-google-generativeai
+Flask==2.1.0
+pandas==1.4.2
+numpy==1.22.0
+requests==2.27.1
+google-generativeai==0.4.0
