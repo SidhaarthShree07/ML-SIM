@@ -6,16 +6,38 @@ import google.generativeai as genai
 import requests
 import re
 import os
+from azure.storage.blob import BlobServiceClient
 
 app = Flask(__name__)
 df = None
 
-# Load dataset only once
+AZURE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
+BLOB_NAME = "cleaned_data.csv"
+LOCAL_CACHE = "cleaned_data_cached.csv"
+AZURE_CONTAINER_NAME = "csvdata"  # your container name
+
+def download_blob_once():
+    if os.path.exists(LOCAL_CACHE):
+        print("✅ Using cached CSV file.")
+        return LOCAL_CACHE
+
+    print("⬇️ Downloading CSV from Azure Blob Storage...")
+    blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
+    blob_client = blob_service_client.get_blob_client(container=AZURE_CONTAINER_NAME, blob=BLOB_NAME)
+
+    with open(LOCAL_CACHE, "wb") as f:
+        download_stream = blob_client.download_blob()
+        f.write(download_stream.readall())
+
+    return LOCAL_CACHE
+
 def get_dataset():
     global df
     if df is None:
-        df = pd.read_csv("https://cleaneddata.blob.core.windows.net/csvdata/cleaned_data.csv")
+        local_file = download_blob_once()
+        df = pd.read_csv(local_file)
     return df
+
 
 # API Keys from Environment
 AZURE_MAPS_KEY = os.environ.get("AZURE_MAPS_KEY")
