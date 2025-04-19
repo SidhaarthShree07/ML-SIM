@@ -77,7 +77,7 @@ def extract_lat_lon(text):
 
 @app.route('/')
 def index():
-    return "✅ Flask App is Running", 200
+    return "✅ Flask App is Running Sid", 200
     
 @app.route("/api/get_best_provider", methods=["POST"])
 def get_best_provider():
