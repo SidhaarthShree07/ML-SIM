@@ -79,9 +79,10 @@ def initialize():
     
         # Precompute provider stats
         provider_stats_temp = tower_data.groupby('operator').agg({
-            'data_speed_mbps': ['mean', 'std'],
-            'signal_strength': 'median'
+            'score': ['mean', 'std'],
+            'distance_km': 'median'
         })
+
         provider_stats_temp.columns = ['prov_mean_speed', 'prov_std_speed', 'prov_med_signal']
         provider_stats_temp = provider_stats_temp.reset_index().rename(columns={'operator': 'Service Provider'})
         provider_stats = provider_stats_temp.copy()
