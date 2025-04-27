@@ -7,4 +7,3 @@ gunicorn
 azure-storage-blob
 geopy
 catboost
-threading
