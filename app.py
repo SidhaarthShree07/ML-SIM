@@ -12,6 +12,7 @@ from flask import Flask, request, jsonify
 from catboost import CatBoostRegressor
 from geopy.geocoders import Nominatim
 import google.generativeai as genai
+from azure.storage.blob import BlobServiceClient
 
 app = Flask(__name__)
 
