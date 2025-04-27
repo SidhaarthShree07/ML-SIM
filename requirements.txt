@@ -5,3 +5,5 @@ requests
 google-generativeai
 gunicorn
 azure-storage-blob
+geopy
+catboost
