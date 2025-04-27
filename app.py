@@ -6,8 +6,6 @@ from catboost import CatBoostRegressor
 from geopy.geocoders import Nominatim
 import io
 import os
-import threading
-
 app = Flask(__name__)
 
 # -------------------------------
@@ -16,9 +14,7 @@ app = Flask(__name__)
 model = None
 tower_data = None
 provider_stats = None
-initialized = False  # Flag to check if initialization is done
-init_lock = threading.Lock()
-
+initialized = False 
 # -------------------------------
 # Configurations
 # -------------------------------
@@ -72,30 +68,26 @@ def get_state_from_latlon(lat, lon):
 def initialize():
     global model, tower_data, provider_stats, blob_service_client, initialized
 
-    if not initialized:  # Only initialize if not already done
-        with init_lock:  # Prevent multiple threads from initializing at the same time
-            if not initialized:
-                print("Initializing app...")
-                # Connect to Azure
-                blob_service_client = BlobServiceClient.from_connection_string(BLOB_CONNECTION_STRING)
-
-                # Load model and dataset
-                model = load_model(MODEL_BLOB_NAME)
-                tower_data = load_blob_as_dataframe(TOWERS_BLOB_NAME)
-
-                # Precompute provider stats
-                provider_stats_temp = tower_data.groupby('operator').agg({
-                    'data_speed_mbps': ['mean', 'std'],
-                    'signal_strength': 'median'
-                })
-                provider_stats_temp.columns = ['prov_mean_speed', 'prov_std_speed', 'prov_med_signal']
-                provider_stats_temp = provider_stats_temp.reset_index().rename(columns={'operator': 'Service Provider'})
-                provider_stats = provider_stats_temp.copy()
-
-                initialized = True
-                print("Initialization complete.")
-            else:
-                print("Initialization already done.")
+    if not initialized:
+        print("Initializing app...")
+        # Connect to Azure
+        blob_service_client = BlobServiceClient.from_connection_string(BLOB_CONNECTION_STRING)
+    
+        # Load model and dataset
+        model = load_model(MODEL_BLOB_NAME)
+        tower_data = load_blob_as_dataframe(TOWERS_BLOB_NAME)
+    
+        # Precompute provider stats
+        provider_stats_temp = tower_data.groupby('operator').agg({
+            'data_speed_mbps': ['mean', 'std'],
+            'signal_strength': 'median'
+        })
+        provider_stats_temp.columns = ['prov_mean_speed', 'prov_std_speed', 'prov_med_signal']
+        provider_stats_temp = provider_stats_temp.reset_index().rename(columns={'operator': 'Service Provider'})
+        provider_stats = provider_stats_temp.copy()
+    
+        initialized = True
+        print("Initialization complete.")
     else:
         print("Initialization already done.")
 
