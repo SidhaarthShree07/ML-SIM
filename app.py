@@ -42,6 +42,7 @@ EARTH_RADIUS_KM = 6371.0
 # -------------------------------
 # Utils
 # -------------------------------
+blob_service_client = BlobServiceClient.from_connection_string(BLOB_CONNECTION_STRING)
 def load_dataframe(blob_name):
     blob_client = blob_service_client.get_blob_client(container=BLOB_CONTAINER_NAME, blob=blob_name)
     stream = io.BytesIO()
