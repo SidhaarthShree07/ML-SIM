@@ -210,7 +210,10 @@ def find_best_providers(lat, lon):
 
     return formatted, conf, None, None
 
-
+@app.route('/')
+def index():
+    return "✅ Flask App is Running Sid", 200
+    
 @app.route('/api/get_best_provider', methods=['POST'])
 def get_best_sim():
     data = request.get_json()
