@@ -6,6 +6,8 @@ from catboost import CatBoostRegressor
 from geopy.geocoders import Nominatim
 import io
 import os
+import threading
+
 app = Flask(__name__)
 
 # -------------------------------
@@ -14,6 +16,8 @@ app = Flask(__name__)
 model = None
 tower_data = None
 provider_stats = None
+initialized = False  # Flag to check if initialization is done
+init_lock = threading.Lock()
 
 # -------------------------------
 # Configurations
@@ -63,31 +67,43 @@ def get_state_from_latlon(lat, lon):
         return None
 
 # -------------------------------
-# Load Everything Once
+# Load Everything Once (Lazy Initialization)
 # -------------------------------
-@app.before_first_request
 def initialize():
-    global model, tower_data, provider_stats, blob_service_client
+    global model, tower_data, provider_stats, blob_service_client, initialized
 
-    # Connect Azure
-    blob_service_client = BlobServiceClient.from_connection_string(BLOB_CONNECTION_STRING)
+    if not initialized:  # Only initialize if not already done
+        with init_lock:  # Prevent multiple threads from initializing at the same time
+            if not initialized:
+                print("Initializing app...")
+                # Connect to Azure
+                blob_service_client = BlobServiceClient.from_connection_string(BLOB_CONNECTION_STRING)
 
-    # Load model and dataset
-    model = load_model(MODEL_BLOB_NAME)
-    tower_data = load_blob_as_dataframe(TOWERS_BLOB_NAME)
+                # Load model and dataset
+                model = load_model(MODEL_BLOB_NAME)
+                tower_data = load_blob_as_dataframe(TOWERS_BLOB_NAME)
 
-    # Precompute provider stats
-    provider_stats_temp = tower_data.groupby('operator').agg({
-        'data_speed_mbps': ['mean', 'std'],
-        'signal_strength': 'median'
-    })
-    provider_stats_temp.columns = ['prov_mean_speed', 'prov_std_speed', 'prov_med_signal']
-    provider_stats_temp = provider_stats_temp.reset_index().rename(columns={'operator': 'Service Provider'})
-    provider_stats = provider_stats_temp.copy()
+                # Precompute provider stats
+                provider_stats_temp = tower_data.groupby('operator').agg({
+                    'data_speed_mbps': ['mean', 'std'],
+                    'signal_strength': 'median'
+                })
+                provider_stats_temp.columns = ['prov_mean_speed', 'prov_std_speed', 'prov_med_signal']
+                provider_stats_temp = provider_stats_temp.reset_index().rename(columns={'operator': 'Service Provider'})
+                provider_stats = provider_stats_temp.copy()
+
+                initialized = True
+                print("Initialization complete.")
+            else:
+                print("Initialization already done.")
+    else:
+        print("Initialization already done.")
 
 @app.route('/')
 def index():
+    initialize()
     return "✅ Flask App is Running Sid", 200
+
 # -------------------------------
 # API Endpoint
 # -------------------------------
@@ -96,6 +112,9 @@ def get_best_sim():
     data = request.get_json()
     latitude = data['lat']
     longitude = data['lon']
+
+    # Initialize if not already done
+    initialize()
 
     # Get Circle (state) from location
     circle = get_state_from_latlon(latitude, longitude)
@@ -182,4 +201,3 @@ def get_best_sim():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     app.run(host='0.0.0.0', port=port)
-
