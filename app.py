@@ -117,8 +117,8 @@ def get_best_sim():
     # Find nearby towers
     radius_km = 5
     towers_nearby = tower_data.copy()
-    towers_nearby['distance_km'] = np.sqrt((towers_nearby['latitude'] - latitude) ** 2 +
-                                           (towers_nearby['longitude'] - longitude) ** 2) * 111
+    towers_nearby['distance_km'] = np.sqrt((towers_nearby['lat'] - latitude) ** 2 +
+                                           (towers_nearby['long'] - longitude) ** 2) * 111
     towers_nearby = towers_nearby[towers_nearby['distance_km'] <= radius_km]
 
     if towers_nearby.empty:
@@ -126,7 +126,7 @@ def get_best_sim():
 
     # Calculate signal strength
     towers_nearby['signal_strength'] = towers_nearby.apply(
-        lambda row: calculate_signal_strength(row['distance_km'], row['samples'], row['range']),
+        lambda row: calculate_signal_strength(row['distance_km'], row['sample'], row['range']),
         axis=1
     )
 
