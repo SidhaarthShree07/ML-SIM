@@ -216,7 +216,7 @@ def find_best_providers(lat, lon):
     formatted = []
     for c in top5:
         formatted.append({
-          'provider':         f"{c['provider']}_{circle}",
+          'provider':         f"{c['provider']}",
           'score':            round(c['combined_score'], 2),
           'signal_strength':  round(c['signal_strength'], 1),
           'distance_km':      round(c['distance_km'], 2)
@@ -241,11 +241,9 @@ def get_best_sim():
     best = top5[0]
 
     return jsonify({
-        "confidence":   round(confidence, 2),
-        "lat":          lat,
-        "lon":          lon,
-        "distance_km":  best["distance_km"],
-        "provider":     best["provider"]
+        "location": [lat, lon],
+        "provider":     best["provider"],
+        "score":   round(confidence, 2)
     })
 
 
@@ -285,7 +283,7 @@ def chatbot():
     return jsonify({
         "location":  location,
         "provider":  best_provider,
-        "confidence": round(confidence, 2),
+        "score": round(confidence, 2),
         "sentiment": sentiment
     })
 
