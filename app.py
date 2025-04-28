@@ -13,7 +13,7 @@ from catboost import CatBoostRegressor
 from geopy.geocoders import Nominatim
 import google.generativeai as genai
 from azure.storage.blob import BlobServiceClient
-
+import io
 app = Flask(__name__)
 
 # -------------------------------
