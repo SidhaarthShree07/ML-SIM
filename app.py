@@ -14,6 +14,8 @@ from geopy.geocoders import Nominatim
 import google.generativeai as genai
 from azure.storage.blob import BlobServiceClient
 import io
+import tempfile
+
 app = Flask(__name__)
 
 # -------------------------------
@@ -55,9 +57,20 @@ def load_model(blob_name):
     stream = io.BytesIO()
     stream.write(blob_client.download_blob().readall())
     stream.seek(0)
-    m = CatBoostRegressor()
-    m.load_model(stream)
-    return m
+    
+    # Save the BytesIO stream to a temporary file
+    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+        tmp_file.write(stream.read())  # Write the content of the stream to the temp file
+        tmp_file_path = tmp_file.name  # Get the temporary file path
+    
+    # Load the model from the temporary file
+    model = CatBoostRegressor()
+    model.load_model(tmp_file_path)
+    
+    # Clean up the temporary file after loading the model
+    os.remove(tmp_file_path)
+    
+    return model
 
 def haversine(lat1, lon1, lat2, lon2):
     lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
